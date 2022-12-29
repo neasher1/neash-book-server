@@ -72,30 +72,42 @@ const run = async () => {
             res.send(result);
         });
 
-        //save posts in db
+        //create posts in db
         app.post('/posts', async (req, res) => {
             const posts = req.body;
             const result = await postsCollection.insertOne(posts);
             res.send(result);
         });
 
-        //replace comment in db
-        // app.put('/comment', async (req, res) => {
-        //     const id = req.query.id;
-        //     console.log(id);
-        //     const comment = req.body;
-        //     const query = {
-        //         _id: ObjectId(id)
-        //     }
-        //     const options = { upsert: true }
-        //     const updatedDoc = {
-        //         $set: {
-        //             comments: comment
-        //         }
-        //     }
-        //     const result = await postsCollection.updateOne(query, updatedDoc, options);
-        //     res.send(result);
-        // });
+        //Like
+        app.put('/postLike/:id', async (req, res) => {
+            const id = req.params;
+            const query = { _id: ObjectId(id) }
+            const like = req.body.react;
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    reaction: like
+                },
+            };
+            const result = await postsCollection.updateOne(query, updateDoc, options);
+            res.send(result);
+        });
+
+        //post comment
+        app.put('/postComments/:id', async (req, res) => {
+            const id = req.params;
+            const filter = { _id: ObjectId(id) };
+            const comment = req.body;
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    comments: comment
+                },
+            };
+            const result = await postsCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+        });
 
     }
 
