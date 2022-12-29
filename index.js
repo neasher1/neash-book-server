@@ -37,6 +37,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 const run = async () => {
     const usersCollection = client.db('neashBook').collection("users");
+    const postsCollection = client.db('neashBook').collection("posts");
 
     try {
 
@@ -53,6 +54,48 @@ const run = async () => {
             const result = await usersCollection.insertOne(user);
             res.send(result);
         });
+
+        //get all posts
+        app.get('/posts', async (req, res) => {
+            const query = {};
+            const result = await postsCollection.find(query).toArray();
+            res.send(result);
+        });
+
+        //get post details by specific category
+        app.get('/posts/:id', async (req, res) => {
+            const post = req.params.id;
+            const query = {
+                _id: ObjectId(post)
+            }
+            const result = await postsCollection.findOne(query);
+            res.send(result);
+        });
+
+        //save posts in db
+        app.post('/posts', async (req, res) => {
+            const posts = req.body;
+            const result = await postsCollection.insertOne(posts);
+            res.send(result);
+        });
+
+        //replace comment in db
+        // app.put('/comment', async (req, res) => {
+        //     const id = req.query.id;
+        //     console.log(id);
+        //     const comment = req.body;
+        //     const query = {
+        //         _id: ObjectId(id)
+        //     }
+        //     const options = { upsert: true }
+        //     const updatedDoc = {
+        //         $set: {
+        //             comments: comment
+        //         }
+        //     }
+        //     const result = await postsCollection.updateOne(query, updatedDoc, options);
+        //     res.send(result);
+        // });
 
     }
 
