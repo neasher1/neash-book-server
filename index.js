@@ -55,6 +55,30 @@ const run = async () => {
             res.send(result);
         });
 
+        // Get User  By Email
+        app.get('/users', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email }
+            const result = await usersCollection.findOne(query);
+            res.send(result);
+        });
+
+        // Update User 
+        app.put('/users/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const body = req.body;
+            console.log(body);
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: {
+                    body
+                },
+            };
+            const result = await usersCollection.updateOne(filter, updateDoc, options);
+            res.send(result);
+        })
+
         //get all posts
         app.get('/posts', async (req, res) => {
             const query = {};
@@ -77,6 +101,16 @@ const run = async () => {
             const posts = req.body;
             const result = await postsCollection.insertOne(posts);
             res.send(result);
+        });
+
+        // Get Top Posts 
+        app.get('/topPosts', async (req, res) => {
+            const query = {};
+            const option = {
+                sort: { reaction: -1 }
+            }
+            const posts = await postsCollection.find(query, option).limit(3).toArray();
+            res.send(posts)
         });
 
         //Like
